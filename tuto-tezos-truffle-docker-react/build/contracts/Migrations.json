@@ -1,0 +1,15 @@
+{
+  "contractName": "Migrations",
+  "abi": [],
+  "michelson": "[ { \"prim\": \"parameter\", \"args\": [ { \"prim\": \"int\" } ] },\n  { \"prim\": \"storage\",\n    \"args\":\n      [ { \"prim\": \"pair\",\n          \"args\":\n            [ { \"prim\": \"int\", \"annots\": [ \"%last_completed_migration\" ] },\n              { \"prim\": \"address\", \"annots\": [ \"%owner\" ] } ] } ] },\n  { \"prim\": \"code\",\n    \"args\":\n      [ [ { \"prim\": \"DUP\" }, { \"prim\": \"CDR\" }, { \"prim\": \"DUP\" },\n          { \"prim\": \"CDR\" }, { \"prim\": \"SENDER\" }, { \"prim\": \"COMPARE\" },\n          { \"prim\": \"NEQ\" },\n          { \"prim\": \"IF\",\n            \"args\":\n              [ [ { \"prim\": \"DROP\", \"args\": [ { \"int\": \"2\" } ] },\n                  { \"prim\": \"PUSH\",\n                    \"args\":\n                      [ { \"prim\": \"string\" }, { \"string\": \"Wrong address\" } ] },\n                  { \"prim\": \"FAILWITH\" } ],\n                [ { \"prim\": \"SWAP\" }, { \"prim\": \"CAR\" }, { \"prim\": \"SWAP\" },\n                  { \"prim\": \"CDR\" }, { \"prim\": \"SWAP\" }, { \"prim\": \"PAIR\" },\n                  { \"prim\": \"NIL\", \"args\": [ { \"prim\": \"operation\" } ] },\n                  { \"prim\": \"PAIR\" } ] ] } ] ] } ]",
+  "source": "type migrations = {\n  owner: address,\n  last_completed_migration : int,\n}\n\ntype return = (list(operation), migrations);\n\nlet main = ((completed_migration, migrations): (int, migrations)): return => {\n  if(sender != migrations.owner){\n    failwith(\"Wrong address\"): return;\n  } else {\n    ([]: list(operation), {...migrations, last_completed_migration: completed_migration});\n  }\n}",
+  "sourcePath": "/Users/anaischokote/franciscain/tezos-react-tutorial/contracts/Migrations.religo",
+  "compiler": {
+    "name": "ligo",
+    "version": "next"
+  },
+  "networks": {},
+  "schemaVersion": "3.2.0-tezos.1",
+  "updatedAt": "2020-11-01T22:16:58.985Z",
+  "networkType": "tezos"
+}

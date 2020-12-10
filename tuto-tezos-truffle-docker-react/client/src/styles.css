@@ -1,0 +1,51 @@
+/* simple css for react app */
+
+body {
+    font-family: monospace;
+    font-size: 20px;
+    margin: 0px;
+    padding: 0px;
+    box-sizing: border-box;
+  }
+  
+  
+  /* for header  */
+  
+  header{
+    height: 70px;
+    color: rgb(27, 182, 209);
+    margin-bottom: 18px;
+    border-bottom: 1.6px solid rgba(0, 0, 0, 0.363);
+  }
+  
+  
+  /* css for card  */
+  .card{
+    height: auto;
+    font-size: 30px;
+    background-color: rgb(45, 118, 167);
+    color: white;
+    margin:auto;
+    width: 700px;
+    padding:10px;
+    margin-bottom: 10px;
+  }
+  
+  /* css for button  */
+  button{
+    border:none;
+    background-color:white;
+    color: black;
+    margin-right: 3px;
+    padding: 8px;
+  }
+  
+  
+  button:hover{
+    border:none;
+    outline: none;
+    background-color:black;
+    color: white;
+    font-size: 17.5px; 
+  }
+  
