@@ -5,6 +5,7 @@ import React from 'react';
 import conseiljs , { registerFetch, registerLogger, TezosNodeWriter, TezosParameterFormat, TezosConseilClient, Signer,TezosMessageUtils } from 'conseiljs';
 import { KeyStoreUtils, SoftSigner } from 'conseiljs-softsigner';
 
+//const signer = await SoftSigner.createSigner(conseiljs.TezosMessageUtils.writeKeyWithHint(keyStore.secretKey, 'edsk'),-1);
 
 
 //const tezosNode = 'https://tezos-dev.cryptonomic-infra.tech:443';
@@ -34,6 +35,95 @@ async function VotingFunction(candidate) {
   return result.operationGroupID;
 }
 
+
+const faucetAccount1 = {
+  "mnemonic": [
+    "people",
+    "sock",
+    "bachelor",
+    "frost",
+    "profit",
+    "please",
+    "once",
+    "pelican",
+    "pretty",
+    "diagram",
+    "rich",
+    "detect",
+    "husband",
+    "broken",
+    "bright"] ,
+  "secret": "1de0ce4e135a5fa1608b8b426704fda1e03874d5",
+  "amount": "38016137429",
+  "pkh": "tz1NaDZMNpWhSvPeMCC1ABYzbhe8UPjBtqER",
+  "password": "XwIDLnUKaE",
+  "email": "icniupdw.nhmvkmcv@tezos.example.org"
+}
+
+const faucetAccount2 = {
+  "mnemonic": [
+    "betray",
+    "burden",
+    "siege",
+    "sleep",
+    "open",
+    "brass",
+    "father",
+    "elegant",
+    "impact",
+    "soul",
+    "ozone",
+    "network",
+    "urban",
+    "summer",
+    "cage"
+  ],
+  "secret": "a54a81eb8303f3f5b63031199bd7d9c04336be18",
+  "amount": "36167731412",
+  "pkh": "tz1RMEMgp2SJ5KDKFWwBwAapE36MzgiFwwSM",
+  "password": "Yom8U0GMZd",
+  "email": "mzlbhahz.ftndgscd@tezos.example.org"
+}
+
+
+async function initAccount(faucetAccount) {
+  //console.log(candidate);
+  const keyStore = await KeyStoreUtils.restoreIdentityFromFundraiser(faucetAccount.mnemonic.join(' '), faucetAccount.email, faucetAccount.password, faucetAccount.pkh);
+  console.log(`public key: ${keyStore.publicKey}`);
+  console.log(`secret key: ${keyStore.secretKey}`);
+  return new Promise((resolve, reject) => {
+    resolve(keyStore)
+  })
+}
+
+async function activateAccount(faucetAccount) {
+  const keyStore = await initAccount(faucetAccount)
+  console.log(keyStore)
+  //const keystore = {
+  //    publicKey: 'edpkvQtuhdZQmjdjVfaY9Kf4hHfrRJYugaJErkCGvV3ER1S7XWsrrj',
+  //    secretKey: 'edskRgu8wHxjwayvnmpLDDijzD3VZDoAH7ZLqJWuG4zg7LbxmSWZWhtkSyM5Uby41rGfsBGk4iPKWHSDniFyCRv3j7YFCknyHH',
+  //    publicKeyHash: 'tz1QSHaKpTFhgHLbqinyYRjxD5sLcbfbzhxy',
+  //    seed: '',
+  //    storeType: conseiljs.KeyStoreType.Fundraiser
+  //};
+
+  const signer = await SoftSigner.createSigner(TezosMessageUtils.writeKeyWithHint(keyStore.secretKey, 'edsk'),-1);
+  console.log(signer);
+  const result = await TezosNodeWriter.sendIdentityActivationOperation(tezosNode, signer, keyStore, faucetAccount.secret);
+  console.log(`Injected operation group id ${result.operationGroupID}`)
+
+  return result;
+}
+
+async function revealAccount(faucetAccount) {
+
+  const keyStore = await initAccount(faucetAccount);
+
+  const signer = await SoftSigner.createSigner(TezosMessageUtils.writeKeyWithHint(keyStore.secretKey, 'edsk'),-1);
+  const result = await TezosNodeWriter.sendKeyRevealOperation(tezosNode, signer, keyStore);
+  console.log(`Injected operation group id ${result.operationGroupID}`);
+}
+
 /*function httpGet() {
   let xmlHttp = new XMLHttpRequest();
   xmlHttp.open( "GET", 'https://delphinet.smartpy.io/chains/main/blocks/head/context/contracts/KT1FGXfNQqtaCbvyxUYhmedwr4rWuKubv2sA/storage', false ); // false for synchronous request
@@ -48,7 +138,7 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <h4 className="headerName">Voting Application</h4>
+        <h4 className="headerName">Quiz Application</h4>
       </header>
 
       <div className="container">
@@ -58,18 +148,18 @@ function App() {
         <div className="row">
           <div className="card">
             <div className="card-body">
-              <button className="col" onClick={() => VotingFunction("Modi")}>
-                Vote for N Modi
+              <button className="col" onClick={() => activateAccount(faucetAccount2)}>
+                Init and Activate account Modi
               </button>
             </div>
           </div>
           <div className="card">
-            <div className="card-body">
-              <button className="col" onClick={() => VotingFunction("Kejriwal")}>
-                Vote for A Kejriwal
+              <div className="card-body">
+              <button className="col" onClick={() => revealAccount(faucetAccount2)}>
+                Reveal account Modi
               </button>
             </div>
-          </div>
+          </div> 
         </div>
       </div>
     </div>
