@@ -136,7 +136,6 @@ async function getBalance(address) {
  let query = ConseilQueryBuilder.blankQuery();
  query = ConseilQueryBuilder.addFields(query, 'balance', 'account_id');
  query = ConseilQueryBuilder.addPredicate(query, 'account_id', ConseilOperator.EQ, [address]);
- //query = ConseilQueryBuilder.addOrdering(query, "balance", ConseilSortDirection.DESC);
  query = ConseilQueryBuilder.setLimit(query, 1);
  let result = await ConseilDataClient.executeEntityQuery(conseilServer, 'tezos', conseilServer.network, 'accounts', query);
  console.log(result)
