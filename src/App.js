@@ -2,7 +2,7 @@
 import logo from './logo.svg';
 import './App.css';
 import React from 'react';
-import conseiljs , { registerFetch, registerLogger, TezosNodeWriter, TezosParameterFormat, TezosConseilClient, Signer,TezosMessageUtils } from 'conseiljs';
+import conseiljs , {ConseilQueryBuilder,ConseilOperator,ConseilDataClient, ConseilSortDirection, registerFetch, registerLogger, TezosNodeWriter, TezosParameterFormat, TezosConseilClient, Signer,TezosMessageUtils } from 'conseiljs';
 import { KeyStoreUtils, SoftSigner } from 'conseiljs-softsigner';
 
 //const signer = await SoftSigner.createSigner(conseiljs.TezosMessageUtils.writeKeyWithHint(keyStore.secretKey, 'edsk'),-1);
@@ -124,6 +124,26 @@ async function revealAccount(faucetAccount) {
   console.log(`Injected operation group id ${result.operationGroupID}`);
 }
 
+async function getBalance(address) {
+
+  const conseilServer = {
+    url: 'https://conseil-dev.cryptonomic-infra.tech:443',
+    apiKey: '1a0ae0f4-024a-4c36-8137-de570e6049b7',
+    network: 'delphinet'
+ };
+
+ const tezosNode = 'https://tezos-dev.cryptonomic-infra.tech:443';
+ let query = ConseilQueryBuilder.blankQuery();
+ query = ConseilQueryBuilder.addFields(query, 'balance', 'account_id');
+ query = ConseilQueryBuilder.addPredicate(query, 'account_id', ConseilOperator.EQ, [address]);
+ query = ConseilQueryBuilder.addOrdering(query, "balance", ConseilSortDirection.DESC);
+ query = ConseilQueryBuilder.setLimit(query, 684);
+ let result = await ConseilDataClient.executeEntityQuery(conseilServer, 'tezos', conseilServer.network, 'accounts', query);
+ console.log(result)
+ return result
+
+
+}
 /*function httpGet() {
   let xmlHttp = new XMLHttpRequest();
   xmlHttp.open( "GET", 'https://delphinet.smartpy.io/chains/main/blocks/head/context/contracts/KT1FGXfNQqtaCbvyxUYhmedwr4rWuKubv2sA/storage', false ); // false for synchronous request
@@ -153,16 +173,22 @@ function App() {
               </button>
             </div>
           </div>
-          <div className="card">
-              <div className="card-body">
+          <div className="card-body">
               <button className="col" onClick={() => revealAccount(faucetAccount2)}>
                 Reveal account Modi
+              </button>
+            </div>
+          </div>
+          <div className="card">
+              <div className="card-body">
+              
+              <button className="col" onClick={() => getBalance(faucetAccount2.pkh)}>
+                Get balance Modi
               </button>
             </div>
           </div> 
         </div>
       </div>
-    </div>
   );
 }
 
