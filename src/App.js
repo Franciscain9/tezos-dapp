@@ -1,9 +1,10 @@
 
 import logo from './logo.svg';
 import './App.css';
-import React from 'react';
+import React,  { useState, useEffect } from 'react';
 import conseiljs , {ConseilQueryBuilder,ConseilOperator,ConseilDataClient, ConseilSortDirection, registerFetch, registerLogger, TezosNodeWriter, TezosParameterFormat, TezosConseilClient, Signer,TezosMessageUtils } from 'conseiljs';
 import { KeyStoreUtils, SoftSigner } from 'conseiljs-softsigner';
+import * as util from 'util';
 
 //const signer = await SoftSigner.createSigner(conseiljs.TezosMessageUtils.writeKeyWithHint(keyStore.secretKey, 'edsk'),-1);
 
@@ -134,14 +135,12 @@ async function getBalance(address) {
 
  const tezosNode = 'https://tezos-dev.cryptonomic-infra.tech:443';
  let query = ConseilQueryBuilder.blankQuery();
- query = ConseilQueryBuilder.addFields(query, 'balance', 'account_id');
+ query = ConseilQueryBuilder.addFields(query, 'balance');
  query = ConseilQueryBuilder.addPredicate(query, 'account_id', ConseilOperator.EQ, [address]);
  query = ConseilQueryBuilder.setLimit(query, 1);
- let result = await ConseilDataClient.executeEntityQuery(conseilServer, 'tezos', conseilServer.network, 'accounts', query);
- console.log(result)
- return result
-
-
+ const result = await ConseilDataClient.executeEntityQuery(conseilServer, 'tezos', conseilServer.network, 'accounts', query);
+ console.log(result[0].balance)
+ return result[0].balance;
 }
 /*function httpGet() {
   let xmlHttp = new XMLHttpRequest();
@@ -153,15 +152,28 @@ async function getBalance(address) {
 
 
 function App() {
+
+  const [balance, setBalance] = useState(0);
+  const changeBalance = (number) => setBalance(number);
+
  // httpGet()
   return (
     <div className="App">
       <header className="App-header">
         <h4 className="headerName">Quiz Application</h4>
       </header>
+      <div className="wallet">
 
+        <button
+        className="balance"
+        onClick={async () => changeBalance(await getBalance(faucetAccount2.pkh))} > ꜩ {balance / 1000000}
+        </button>
+
+      </div>
+
+      
       <div className="container">
-        <h1>Welcome, you can vote for your favourite candidate here.</h1>
+        <h1>Welcome</h1>
       </div>
       <div className="container">
         <div className="row">
@@ -172,19 +184,21 @@ function App() {
               </button>
             </div>
           </div>
-          <div className="card-body">
-              <button className="col" onClick={() => revealAccount(faucetAccount2)}>
-                Reveal account Modi
-              </button>
+          <div className="card">
+            <div className="card-body">
+                <button className="col" onClick={() => revealAccount(faucetAccount2)}>
+                  Reveal account Modi
+                </button>
             </div>
+          </div>
           </div>
           <div className="card">
               <div className="card-body">
               
-              <button className="col" onClick={() => getBalance(faucetAccount2.pkh)}>
-                Get balance Modi
-              </button>
-            </div>
+                <button className="col" onClick={() => getBalance(faucetAccount2.pkh)}>
+                  Get balance Modi
+                </button>
+              </div>
           </div> 
         </div>
       </div>
