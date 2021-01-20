@@ -6,7 +6,6 @@ import conseiljs , { registerFetch, registerLogger, TezosNodeWriter, TezosParame
 import { KeyStoreUtils, SoftSigner } from 'conseiljs-softsigner';
 
 
-
 //const tezosNode = 'https://tezos-dev.cryptonomic-infra.tech:443';
 const tezosNode = 'https://delphinet.smartpy.io';
 
@@ -52,22 +51,35 @@ function App() {
       </header>
 
       <div className="container">
-        <h1>Welcome, you can vote for your favourite candidate here.</h1>
+        <h1>Welcome, you can vote for your favourite cryptocurrency</h1>
       </div>
       <div className="container">
         <div className="row">
           <div className="card">
             <div className="card-body">
-              <button className="col" onClick={() => VotingFunction("Modi")}>
-                Vote for N Modi
-              </button>
+              <br/>
+                <button img src="./img/bitcoin.png" className="col" onClick={() => VotingFunction("Bitcoin")}>
+                  Vote for Bitcoin
+                </button>
+              <br/>
             </div>
           </div>
           <div className="card">
             <div className="card-body">
-              <button className="col" onClick={() => VotingFunction("Kejriwal")}>
-                Vote for A Kejriwal
-              </button>
+              <br/>
+                <button className="button" onClick={() => VotingFunction("Ethereum")}>
+                  Vote for Ethereum
+                </button>
+              <br/>
+            </div>
+          </div>
+          <div className="card">
+            <div className="card-body">
+              <br/>
+                <button className="button" onClick={() => VotingFunction("Tezos")}>
+                  Vote for Tezos
+                </button>
+              <br/>
             </div>
           </div>
         </div>
