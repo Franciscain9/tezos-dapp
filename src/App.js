@@ -6,6 +6,7 @@ import conseiljs , { registerFetch, registerLogger, TezosNodeWriter, TezosParame
 import { KeyStoreUtils, SoftSigner } from 'conseiljs-softsigner';
 import * as log from 'loglevel';
 import fetch from 'node-fetch';
+import { TezosToolkit } from "@taquito/taquito";
 
 //const tezosNode = 'https://tezos-dev.cryptonomic-infra.tech:443';
 const tezosNode = 'https://delphinet.smartpy.io';
@@ -15,6 +16,14 @@ logger.setLevel('debug', false); // to see only errors, set to 'error'
 conseiljs.registerLogger(logger);
 conseiljs.registerFetch(fetch);
 */
+
+const conseilServer = { url: 'https://conseil-dev.cryptonomic-infra.tech:443', apiKey: '1a0ae0f4-024a-4c36-8137-de570e6049b7', network: 'delphinet' };
+
+const contractAddress = 'KT19AYiWiwKyugrSNyF4x3UMBgNyLChDog4Z';
+
+
+
+
 async function SetCandidate(candidate) {
   try {
 	console.log(candidate);
@@ -25,21 +34,28 @@ async function SetCandidate(candidate) {
       seed: '',
       storeType: 1
   };
-  const contractAddress = 'KT19AYiWiwKyugrSNyF4x3UMBgNyLChDog4Z';
+  
   // KT1LUUBgMyNXctxbNpicznoVqhC7en8b3m9V
  //const signer = 'tz1f3vYsCGhxs1d41Y95Jn2ZoKto1HSJAfcq';
+ 
+
  
   const signer = await SoftSigner.createSigner(TezosMessageUtils.writeKeyWithHint(keystore.privateKey, 'edsk'),-1);
   
 
   //const result = await TezosNodeWriter.sendContractPing(tezosNode,signer, keystore ,contractAddress, 10000, 100000, '', 1000, 100000)
   const result = await TezosNodeWriter.sendContractInvocationOperation(tezosNode,signer,keystore, contractAddress,  0, 100000, 1000, 750000,'set_candidate', `"${candidate}"`, TezosParameterFormat.Michelson);
+  let gi = result.operationGroupID;
+  const groupid = gi.replace(/\"/g, '').replace(/\n/, '');
   
-  console.log(`Injected operation group id ${result.operationGroupID}`);
+  await TezosConseilClient.awaitOperationConfirmation(conseilServer, conseilServer.network, groupid, 5, 31);
+
+  console.log(`Injected operation group id ${gi}`);
   console.log(result)
   //
   //finishit("Data inserted successfully in blockchain. Reference id:"+result.operationGroupID);
-  return result.operationGroupID;
+  return gi;
+
 }
 
 catch(error) {
@@ -57,7 +73,6 @@ async function VotingFunction(candidate) {
       seed: '',
       storeType: 1
   };
-  const contractAddress = 'KT19AYiWiwKyugrSNyF4x3UMBgNyLChDog4Z';
   // KT1LUUBgMyNXctxbNpicznoVqhC7en8b3m9V
  //const signer = 'tz1f3vYsCGhxs1d41Y95Jn2ZoKto1HSJAfcq';
  
@@ -66,17 +81,35 @@ async function VotingFunction(candidate) {
 
   //const result = await TezosNodeWriter.sendContractPing(tezosNode,signer, keystore ,contractAddress, 10000, 100000, '', 1000, 100000)
   const result = await TezosNodeWriter.sendContractInvocationOperation(tezosNode,signer,keystore, contractAddress,  0, 100000, 1000, 750000,'vote', `"${candidate}"`, TezosParameterFormat.Michelson);
+  let gi = result.operationGroupID;
+  const groupid = gi.replace(/\"/g, '').replace(/\n/, '');
   
-  console.log(`Injected operation group id ${result.operationGroupID}`);
+  await TezosConseilClient.awaitOperationConfirmation(conseilServer, conseilServer.network, groupid, 5, 31);
+
+  console.log(`Injected operation group id ${gi}`);
   console.log(result)
   //
   //finishit("Data inserted successfully in blockchain. Reference id:"+result.operationGroupID);
-  return result.operationGroupID;
+  return gi;
 }
 
 catch(error) {
   console.log(error)}
 }
+
+
+async function GetData(candidate) {
+  try {
+  const Tezos = new TezosToolkit(tezosNode);
+  const contract =  await Tezos.contract.at(contractAddress)
+  const storage =  await contract.storage()
+  const details = await storage.get(candidate)
+  console.log(details['c'])
+  
+  }
+  catch(error) {
+    console.log(error)}
+  }
 
 /*function httpGet() {
   let xmlHttp = new XMLHttpRequest();
@@ -112,6 +145,11 @@ function App() {
                   Vote for Bitcoin
                 </button>
               <br/>
+              <br/>
+                <button img src="./img/bitcoin.png" className="col" onClick={() => GetData('Bitcoin')}>
+                  Get Data Bitcoin
+                </button>
+            <br/>
             </div>
           </div>
           <div className="card">
@@ -126,6 +164,11 @@ function App() {
                   Vote for Ethereum
                 </button>
               <br/>
+              <br/>
+                <button img src="./img/bitcoin.png" className="col" onClick={() => GetData('Ethereum')}>
+                  Get Data Ethereum
+                </button>
+            <br/>
             </div>
           </div>
           <div className="card">
@@ -140,6 +183,11 @@ function App() {
                   Vote for Tezos
                 </button>
               <br/>
+              <br/>
+                <button img src="./img/bitcoin.png" className="col" onClick={() => GetData('Tezos')}>
+                  Get Data Tezos
+                </button>
+            <br/>
             </div>
           </div>
         </div>
