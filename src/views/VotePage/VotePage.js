@@ -44,9 +44,11 @@ export default class VotePage extends React.Component {
 
  }, []);**/
   async componentDidMount(){
+    await this.setState({loading: true});
     await this.setState({contractAdress: this.props.match.params.token});
     await this.setState({bc: new BC(this.state.contractAdress)});
     await this.setState({vote: await this.state.bc.GetVote()});
+    await this.setState({loading: false});
     console.log(this.state.vote);
     this.state.vote.votesRecord.valueMap.forEach((value, key) => {
       console.log(value.c[0], key.trim())
@@ -67,13 +69,16 @@ export default class VotePage extends React.Component {
       contractAdress: '',
       bc: '',
       vote: '',
+      loading: true,
     }
 
   }
 
   getComponents(myHashMap) {
     const comps = [];
-    myHashMap.forEach((value, key) => comps.push(<Card style={{maxWidth: "800px"}} myKey={key} myValue={value.c[0]}>
+    myHashMap.forEach((value, key) => comps.push(
+    <div key={key.replaceAll('"', "")} style={{maxWidth: "800px", width: "100%"}}>
+      <Card style={{width: "100%"}}  myValue={value.c[0]}>
       <CardBody>
         
         <h2 className={"text-center my-4"}>{key.replaceAll('"', "")}</h2>
@@ -84,18 +89,22 @@ export default class VotePage extends React.Component {
             direction="row"
             justify="center"
             alignItems="center">
-            <Button color="primary" size="lg" onClick={() =>{
-              this.state.bc.VotingFunction(key)
+            <Button color="primary" size="lg" onClick={async() =>{
+              this.setState({loading: true});
+              await this.state.bc.VotingFunction(key);
+              this.setState({loading: false});
             }}>JE VOTE {key.replaceAll('"', "")}</Button>
             </GridContainer>
       </CardBody>
-    </Card>));
+    </Card>
+    </div>
+    ));
     return comps;
   }
 
 
   render(){
-    if(this.state.vote){
+    if(this.state.vote && !this.state.loading){
       const componentsToRender = this.getComponents(this.state.vote.votesRecord.valueMap);
     
     
@@ -114,6 +123,7 @@ export default class VotePage extends React.Component {
             <h2 className={"display-3"}>{this.state.vote.description}</h2>
             <h3>Organisé par {this.state.vote.owner}</h3>
             <h3 className={"text-warning"}>{this.state.vote.votesRecord.size} candidats</h3>
+            <a href={"/resultat/"+this.state.contractAdress} className={"border rounded p-2"}>Voir les résultat</a>
           </div>
         <div  style={{width: '98%', minHeight: '100vh', marginTop: "100px",}} className={"mx-auto"}>
           
@@ -125,7 +135,10 @@ export default class VotePage extends React.Component {
       </div>
     );
   }else{
-    return(<div></div>)
+    return(<div style={{height: "100vh", width: "100vw"}} className={"d-flex flex-row justify-content-center align-items-center bg-white"}>
+      <div className={"lds-hourglass"}></div>
+    </div>
+    )
 
   }
 }

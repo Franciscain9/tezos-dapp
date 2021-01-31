@@ -8,56 +8,30 @@ import { makeStyles } from "@material-ui/core/styles";
 // core components
 import Header from "components/Header/Header.js";
 import Footer from "components/Footer/Footer.js";
-import GridContainer from "components/Grid/GridContainer.js";
-import Button from "components/CustomButtons/Button.js";
+//import GridContainer from "components/Grid/GridContainer.js";
+//import Button from "components/CustomButtons/Button.js";
 import HeaderLinks from "components/Header/HeaderLinks.js";
-import Card from "components/Card/Card.js";
-import CardBody from "components/Card/CardBody.js";
+//import Card from "components/Card/Card.js";
+//import CardBody from "components/Card/CardBody.js";
 
 import styles from "assets/jss/material-kit-react/views/landingPage.js";
 
 
 import BC from "bc.js";
 import { ResponsiveBar } from '@nivo/bar'
-import { keys } from "@material-ui/core/styles/createBreakpoints";
 
 const dashboardRoutes = [];
 
-const useStyles = makeStyles(styles);
+//const useStyles = makeStyles(styles);
 
 export default class ResultPage extends React.Component {
-  /**const [contractAdress, setCA] = useState();
-  const [bc, setBC] = useState(); 
-  const [vote, setVote] = useState();
-  useEffect(async() => {
-    await setCA(props.match.params.token);
-    setBC(new BC(contractAdress)).then((d)=>{
-      console.log("ended");
-    });
-    bc.GetCandidates("Tezos").then(async (data) => {
-      await setVote(data);
-      console.log(vote);
-    })
-    
-
- }, []);**/
+ 
   async componentDidMount(){
+    await this.setState({loading: true});
     await this.setState({contractAdress: this.props.match.params.token});
     await this.setState({bc: new BC(this.state.contractAdress)});
     await this.setState({vote: await this.state.bc.GetVote()});
-    console.log(this.state.vote);
-    this.state.vote.votesRecord.valueMap.forEach((value, key) => {
-      console.log(value.c[0], key.trim())
-    })
-    //this.state.vote.votesRecord.valueMap.map((elt,i)=>console.log(elt));
-
-    /**setBC(new BC(contractAdress)).then((d)=>{
-      console.log("ended");
-    });
-    bc.GetCandidates("Tezos").then(async (data) => {
-      await setVote(data);
-      console.log(vote);
-    })**/
+    await this.setState({loading: false});
   }
   constructor(props){
     super(props);
@@ -65,6 +39,7 @@ export default class ResultPage extends React.Component {
       contractAdress: '',
       bc: '',
       vote: '',
+      loading: 'true',
     }
 
   }
@@ -81,113 +56,9 @@ export default class ResultPage extends React.Component {
     });
     return(data);
   }
-  getComponents(hashmap) {
-    let data = []
-    let keys = [];
-    hashmap.forEach((value, key)=>{
-        var d = new Map();
-        keys.push(key.replaceAll('"', ""));
-        d["value"] = value.c[0];
-        d["id"] = key.replaceAll('"', "");
-        data.push(d);
-    });
-    console.log(data);
-    const  MyResponsiveBar = ({data}) => (
-        <ResponsiveBar
-            data={data}
-            keys={['value']}
-            indexBy="id"
-            margin={{ top: 50, right: 130, bottom: 50, left: 60 }}
-            padding={0.3}
-            valueScale={{ type: 'linear' }}
-            indexScale={{ type: 'band', round: true }}
-            colors={{ scheme: 'nivo' }}
-            defs={[
-                {
-                    id: 'dots',
-                    type: 'patternDots',
-                    background: 'inherit',
-                    color: '#38bcb2',
-                    size: 4,
-                    padding: 1,
-                    stagger: true
-                },
-                {
-                    id: 'lines',
-                    type: 'patternLines',
-                    background: 'inherit',
-                    color: '#eed312',
-                    rotation: -45,
-                    lineWidth: 6,
-                    spacing: 10
-                }
-            ]}
-            fill={[
-                {
-                    match: {
-                        id: 'value'
-                    },
-                    id: 'dots'
-                }
-            ]}
-            
-            borderColor={{ from: 'color', modifiers: [ [ 'darker', 1.6 ] ] }}
-            axisTop={null}
-            axisRight={null}
-            axisBottom={{
-                tickSize: 5,
-                tickPadding: 5,
-                tickRotation: 0,
-                legend: 'candidats',
-                legendPosition: 'middle',
-                legendOffset: 32
-            }}
-            axisLeft={{
-                tickSize: 5,
-                tickPadding: 5,
-                tickRotation: 0,
-                legend: 'votes',
-                legendPosition: 'middle',
-                legendOffset: -40
-            }}
-            labelSkipWidth={12}
-            labelSkipHeight={12}
-            labelTextColor={{ from: 'color', modifiers: [ [ 'darker', 1.6 ] ] }}
-            legends={[
-                {
-                    dataFrom: 'keys',
-                    anchor: 'bottom-right',
-                    direction: 'column',
-                    justify: false,
-                    translateX: 120,
-                    translateY: 0,
-                    itemsSpacing: 2,
-                    itemWidth: 100,
-                    itemHeight: 20,
-                    itemDirection: 'left-to-right',
-                    itemOpacity: 0.85,
-                    symbolSize: 20,
-                    effects: [
-                        {
-                            on: 'hover',
-                            style: {
-                                itemOpacity: 1
-                            }
-                        }
-                    ]
-                }
-            ]}
-            animate={true}
-            motionStiffness={90}
-            motionDamping={15}
-        />
-    )
-    return(MyResponsiveBar);
-  }
-
 
   render(){
-    if(this.state.vote){
+    if(this.state.vote && !this.state.loading){
       const data = this.getData(this.state.vote.votesRecord.valueMap);
     
     
@@ -304,7 +175,10 @@ export default class ResultPage extends React.Component {
       </div>
     );
   }else{
-    return(<div></div>)
+    return(<div style={{height: "100vh", width: "100vw"}} className={"d-flex flex-row justify-content-center align-items-center bg-white"}>
+    <div className={"lds-hourglass"}></div>
+  </div>
+  )
 
   }
 }
